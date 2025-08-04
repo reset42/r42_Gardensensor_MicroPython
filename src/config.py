@@ -3,7 +3,7 @@
 # WLAN-Konfiguration (primär)
 SSID = "Your_Primary_SSID"          # Name des primären WLANs / Primary WiFi SSID
 PASSWORD = "Your_Password"          # Passwort des primären WLANs / Primary WiFi password
-STATIC_IP = "Your_Static_IP"        # Statische IP-Adresse (optional; leer lassen für DHCP) / Static IP (optional; leave empty for DHCP)
+STATIC_IP = "Your_Static_IP"        # Statische IP-Adresse (optional) / Static IP (optional)
 NETMASK = "255.255.255.0"            # Subnetzmaske / Subnet mask
 GATEWAY = "192.168.1.1"              # Gateway-Adresse / Default gateway
 DNS = "8.8.8.8"                      # DNS-Server / DNS server
@@ -11,7 +11,7 @@ DNS = "8.8.8.8"                      # DNS-Server / DNS server
 # WLAN-Konfiguration (Fallback)
 SSID_FB = "Your_Secondary_SSID"      # Zweites WLAN als Fallback / Secondary WiFi SSID (fallback)
 PASSWORD_FB = "your_fallback_pass"   # Passwort für Fallback-WLAN / Password for fallback network
-STATIC_IP_FB = "192.168.1.101"       # Statische IP im Fallback-Netz (leer lassen für DHCP) / Static IP in fallback network (leave empty for DHCP)
+STATIC_IP_FB = ""                    # Leer lassen für DHCP / Leave empty for DHCP
 NETMASK_FB = "255.255.255.0"
 GATEWAY_FB = "192.168.1.1"
 DNS_FB = "1.1.1.1"
@@ -38,3 +38,15 @@ UPDATE_INTERVAL = 10                 # Sekunden / in seconds
 # LED-Konfiguration / LED pin setup
 ONBOARD_LED = "LED"                  # Onboard-LED-Bezeichnung / Onboard LED name (constant in MicroPython)
 STATUS_LED = 16                      # GPIO für Status-LED / GPIO for external status LED
+
+# Sensor-Pinbelegung / Sensor pin configuration
+# VEML7700 (Lichtsensor) / light sensor
+VEML_SDA = 0                         # SDA-Pin für VEML7700
+VEML_SCL = 1                         # SCL-Pin für VEML7700
+VEML_PWR = 15                        # Power-Pin für VEML7700
+
+# BME280 (Temp/RLF/Druck) / temperature, humidity, pressure sensor
+BME_SDA = 2                          # SDA-Pin für BME280
+BME_SCL = 3                          # SCL-Pin für BME280
+BME_PWR = 14                         # Power-Pin für BME280
+BME280_ADDRESS = 0x76               # I2C-Adresse des BME280 / I2C address of BME280
