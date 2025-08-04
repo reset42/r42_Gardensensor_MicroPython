@@ -46,11 +46,12 @@
 
 ## Beispiel: config.py
 
-\`\`\`python
+```python
 # config.py – zentrale Konfiguration für WLAN, MQTT, Sensoren
+
 SSID = "MeinWLAN"
 PASSWORD = "supergeheim"
-STATIC_IP = ""  # leer für DHCP
+STATIC_IP = ""          # leer für DHCP
 MQTT_BROKER = "192.168.1.50"
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = "sensor_indoor"
@@ -59,36 +60,3 @@ VEML_SCL = 1
 BME_SDA = 2
 BME_SCL = 3
 ONBOARD_LED = "LED"
-\`\`\`
-*(Weitere Optionen und Beschreibung siehe Kommentar in config.py)*
-
----
-
-## Pinout (Standard)
-
-- **BME280 SDA/SCL:** GPIO2 / GPIO3
-- **VEML7700 SDA/SCL:** GPIO0 / GPIO1
-- **Status-LED:** Onboard oder frei wählbar (z. B. GPIO16)
-
----
-
-## Troubleshooting
-
-- **LED blinkt schnell:** Kein WLAN oder MQTT erreichbar.
-- **LED blinkt langsam:** Sensorfehler (BME280 oder VEML7700 nicht gefunden).
-- **Keine Werte:** Prüfe Verkabelung, I2C-Pins, MQTT-Konfiguration.
-
-**Tipp:**  
-Du kannst via USB-Seriell mit `screen`/`minicom`/Thonny debuggen und Logs auslesen.
-
----
-
-## Lizenz
-
-MIT License – siehe LICENSE
-
----
-
-**Fragen, Feedback, Bugs?**  
-Erstelle ein [GitHub Issue](https://github.com/reset42/r42_Gardensensor_MicroPython/issues)  
-oder schreib an [info@reset42.de](mailto:info@reset42.de)
