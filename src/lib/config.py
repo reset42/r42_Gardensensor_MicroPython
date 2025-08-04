@@ -1,0 +1,56 @@
+# config.py – zentrale Konfiguration / central configuration
+
+# WLAN-Konfiguration (primär)
+SSID = "Your_Primary_SSID"            # Name des primären WLANs / Primary WiFi SSID
+PASSWORD = "Your_Password"            # Passwort des primären WLANs / Primary WiFi password
+STATIC_IP = "Your_Static_IP"          # Statische IP-Adresse (optional) / Static IP (optional)
+NETMASK = "255.255.255.0"             # Subnetzmaske / Subnet mask
+GATEWAY = "192.168.1.1"               # Gateway-Adresse / Default gateway
+DNS = "8.8.8.8"                       # DNS-Server / DNS server
+
+# WLAN-Konfiguration (Fallback)
+SSID_FB = "Your_Secondary_SSID"       # Zweites WLAN als Fallback / Secondary WiFi SSID
+PASSWORD_FB = "your_fallback_pass"    # Passwort für Fallback-WLAN / Password for fallback network
+STATIC_IP_FB = ""                     # Leer lassen für DHCP / Leave empty for DHCP
+NETMASK_FB = "255.255.255.0"
+GATEWAY_FB = "192.168.1.1"
+DNS_FB = "1.1.1.1"
+
+# Zeitsynchronisation / Time sync settings
+NTP_SERVER = "pool.ntp.org"           # Öffentlicher NTP-Server / Public NTP server
+UTC_OFFSET = "3600"                   # Zeitzonenoffset in Sekunden / Timezone offset in seconds (e.g. UTC+1)
+SUMMER_OFFSET = "3600"                # Sommerzeit-Offset in Sekunden / Daylight saving offset in seconds
+
+# WLAN-Verbindungsversuche / WiFi retry logic
+MAX_WIFI_RETRIES = 10                 # Maximale Versuche für Verbindung / Max WiFi connection retries
+WIFI_RETRY_DELAY = 0.5                # Verzögerung zwischen Versuchen (Sekunden) / Delay between retries (s)
+WIFI_PRIMARY_CHECK = 10               # Prüfintervall für Rückkehr ins Primärnetz / Loops before checking primary WiFi
+
+# MQTT-Konfiguration / MQTT configuration
+MQTT_BROKER = "mqtt.example.com"      # IP-Adresse oder Hostname des MQTT-Brokers / MQTT broker IP or hostname
+MQTT_PORT = 1883                      # Standardport für MQTT / MQTT default port
+MQTT_CLIENT_ID = "sensor_indoor"      # Eindeutiger Name des Geräts / Unique client ID
+MQTT_TOPIC = "sensor/gh/sensor_indoor" # Topic für Sensordaten / Topic to publish sensor data
+
+# Sensor-Update-Intervall / Sensor data send interval
+UPDATE_INTERVAL = 10                  # Sekunden / in seconds
+
+# LED-Konfiguration / LED pin setup
+ONBOARD_LED = "LED"                   # Onboard-LED-Bezeichnung / Onboard LED name (constant in MicroPython)
+STATUS_LED = 16                       # GPIO für Status-LED / GPIO for external status LED
+
+# Sensor-Pinbelegung / Sensor pin configuration
+
+# VEML7700 (Lichtsensor) / light sensor
+VEML_SDA = 0                          # SDA-Pin für VEML7700
+VEML_SCL = 1                          # SCL-Pin für VEML7700
+VEML_PWR = 15                         # Power-Pin für VEML7700
+VEML7700_ADDRESS = 0x10               # I2C-Adresse / I2C address
+VEML7700_IT = 100                     # Integrationszeit: 25, 50, 100, 200, 400, 800
+VEML7700_GAIN = 1                     # Gain: 1/8, 1/4, 1, 2
+
+# BME280 (Temp/RLF/Druck) / temperature, humidity, pressure sensor
+BME_SDA = 2                           # SDA-Pin für BME280
+BME_SCL = 3                           # SCL-Pin für BME280
+BME_PWR = 14                          # Power-Pin für BME280
+BME280_ADDRESS = 0x76                 # I2C-Adresse des BME280 / I2C address of BME280
