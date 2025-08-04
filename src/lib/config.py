@@ -27,7 +27,7 @@ WIFI_RETRY_DELAY = 0.5                # Verzögerung zwischen Versuchen (Sekunde
 WIFI_PRIMARY_CHECK = 10               # Prüfintervall für Rückkehr ins Primärnetz / Loops before checking primary WiFi
 
 # --- MQTT Konfiguration ---
-MQTT_BROKER = "192.168.178.10"
+MQTT_BROKER = "192.168.1.1"
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = "sensor_gh_1"
 MQTT_TOPIC = "sensor/gh/sensor_outdoor"
