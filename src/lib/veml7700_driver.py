@@ -41,8 +41,12 @@ class VEML7700:
     def __init__(self, i2c=None, address=None, it=None, gain=None):
         self.address = address if address is not None else config.VEML7700_ADDRESS
         if i2c is None:
-            raise ValueError("Ein I2C-Objekt ist erforderlich.")
-        self.i2c = i2c
+            self.i2c = I2C(0, scl=Pin(config.VEML_SCL), sda=Pin(config.VEML_SDA))
+        else:
+            self.i2c = i2c
+
+        self.power_pin = Pin(config.VEML_PWR, Pin.OUT)
+        self.power_pin.value(1)
 
         self.it = it if it is not None else config.VEML7700_IT
         self.gain_factor = gain if gain is not None else config.VEML7700_GAIN
@@ -76,4 +80,3 @@ class VEML7700:
         raw = self.lux[0] + self.lux[1] * 256
         lux = raw * self.gain
         return int(round(lux))
-
