@@ -68,12 +68,6 @@ ONBOARD_LED = "LED"
 ```
 ---
 
-- **BME280** SDA/SCL: GPIO2 / GPIO3
-- **BME280** (I2C – Temperatur, Feuchte, Druck)
-- **VEML7700** (I2C – Licht/Lux)
-- **Status-LED** (optional, für Fehleranzeige)
-- **(Optional) Weitere I2C-Sensoren einfach nachrüstbar**
-
 ## Pinout (Standard)
 - **BME280** |  SDA/SCL: GPIO2 / GPIO3
 - **VEML7700** |  SDA/SCL: GPIO0 / GPIO1
