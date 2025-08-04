@@ -39,7 +39,7 @@
    - Achte darauf, dass alle benötigten Bibliotheken (s. u.) vorhanden sind.
 
 3. **config.py anpassen:**  
-   Trage deine WLAN-Daten, MQTT-Server, Sensor-Pins usw. in `config.py` ein.
+     Trage deine WLAN-Daten, MQTT-Server, Sensor-Pins usw. in `config.py` ein.
 
 4. **Start:**  
    - Starte den Pico neu, `main.py` läuft automatisch.
