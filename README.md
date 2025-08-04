@@ -89,7 +89,7 @@ ONBOARD_LED = "LED"
 
 
 ## Lizenz
-**MIT License – siehe [LICENS]([https://github.com/reset42/r42_Gardensensor_MicroPython/issues](https://github.com/reset42/r42_Gardensensor_MicroPython/main/LICENSE))**
+**MIT License – siehe [MIT License](LICENSE)**
 
 ## Fragen, Feedback, Bugs?
 - Erstelle ein [GitHub Issue](https://github.com/reset42/r42_Gardensensor_MicroPython/issues)
