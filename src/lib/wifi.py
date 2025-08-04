@@ -1,4 +1,4 @@
-# wifi.py
+# wifi.py – WiFi connection and time sync logic (supports primary/fallback)
 
 import network
 import config
@@ -13,48 +13,47 @@ except:
 
 from state import SUCCESS, FATAL_ERROR
 
+# Global interface handle
 sta_if = network.WLAN(network.STA_IF)
 
-# Wird von main.py gesetzt
+# Controlled by main.py to determine which network to use
 use_fallback = False
 
+# Return static IP configuration if defined, else None for DHCP
 def get_ifconfig():
-    if use_fallback:
-        if config.STATIC_IP_FB:
-            return (
-                config.STATIC_IP_FB,
-                config.NETMASK_FB,
-                config.GATEWAY_FB,
-                config.DNS_FB
-            )
-    else:
-        if config.STATIC_IP:
-            return (
-                config.STATIC_IP,
-                config.NETMASK,
-                config.GATEWAY,
-                config.DNS
-            )
-    return None  # DHCP verwenden
+    if use_fallback and config.STATIC_IP_FB:
+        return (
+            config.STATIC_IP_FB,
+            config.NETMASK_FB,
+            config.GATEWAY_FB,
+            config.DNS_FB
+        )
+    elif not use_fallback and config.STATIC_IP:
+        return (
+            config.STATIC_IP,
+            config.NETMASK,
+            config.GATEWAY,
+            config.DNS
+        )
+    return None
 
+# Apply static or dynamic network configuration
 def apply_network_config():
     cfg = get_ifconfig()
     if cfg:
-        if use_fallback:
-            print("📡 Fallback: Statische IP wird gesetzt")
-        else:
-            print("📡 Primär: Statische IP wird gesetzt")
+        print("📡 Setting static IP (%s)" % ("fallback" if use_fallback else "primary"))
         sta_if.ifconfig(cfg)
     else:
-        print("📡 DHCP aktiviert")
+        print("📡 DHCP enabled")
 
+# Establish WiFi connection and wait for success or timeout
 async def connect():
     if not sta_if.active():
         sta_if.active(True)
 
     apply_network_config()
 
-    print("🔌 Verbinde mit WLAN...")
+    print("🔌 Connecting to WiFi...")
     ssid = config.SSID_FB if use_fallback else config.SSID
     password = config.PASSWORD_FB if use_fallback else config.PASSWORD
     sta_if.connect(ssid, password)
@@ -66,34 +65,37 @@ async def connect():
         print(".", end="")
 
     if sta_if.isconnected():
-        print("\n✅ WLAN verbunden mit IP:", sta_if.ifconfig()[0])
+        print("\n✅ WiFi connected – IP:", sta_if.ifconfig()[0])
         return SUCCESS
     else:
-        print("\n❌ WLAN-Verbindung fehlgeschlagen.")
+        print("\n❌ WiFi connection failed.")
         return FATAL_ERROR
 
+# Check if WiFi is currently connected
 def is_connected():
     return sta_if.isconnected()
 
+# Return IP address if connected
 def get_ip():
     return sta_if.ifconfig()[0] if is_connected() else None
 
+# Synchronize system time using NTP and apply local offset
 def sync_time():
     if ntptime is None:
-        print("❌ ntptime nicht verfügbar.")
-        return FATAL_ERROR
+        print("❌ ntptime module not available.")
+        return False
 
     try:
         ntptime.host = config.NTP_SERVER
         ntptime.settime()
-        print("🕒 Zeit synchronisiert (UTC).")
+        print("🕒 Time synchronized (UTC).")
 
         offset = int(config.UTC_OFFSET) + int(config.SUMMER_OFFSET)
         now = utime.time() + offset
         tm = utime.localtime(now)
         machine.RTC().datetime((tm[0], tm[1], tm[2], tm[6]+1, tm[3], tm[4], tm[5], 0))
-        print("🕒 Zeit lokal eingestellt:", "{:02d}:{:02d}:{:02d}".format(tm[3], tm[4], tm[5]))
-        return SUCCESS
+        print("🕒 Local time applied:", "{:02d}:{:02d}:{:02d}".format(tm[3], tm[4], tm[5]))
+        return True
     except Exception as e:
-        print("⚠️ NTP-Fehler:", e)
-        return FATAL_ERROR
+        print("⚠️ NTP sync error:", e)
+        return False
