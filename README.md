@@ -71,8 +71,8 @@ ONBOARD_LED = "LED"
 - **(Optional) Weitere I2C-Sensoren einfach nachrüstbar**
 
 ## Pinout (Standard)
-- **BME280** SDA/SCL: GPIO2 / GPIO3
-- **VEML7700** SDA/SCL: GPIO0 / GPIO1
+- **BME280** |  SDA/SCL: GPIO2 / GPIO3
+- **VEML7700** |  SDA/SCL: GPIO0 / GPIO1
 
 ## Status-LED: 
 -**LED** (Onboard) oder frei wählbar (z. B. GPIO16)
