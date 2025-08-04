@@ -61,8 +61,30 @@ BME_SDA = 2
 BME_SCL = 3
 ONBOARD_LED = "LED"
 
+```
 ---
 
-**Merke:**  
-- **Öffnen:** Drei Backticks + „python“  
+Pinout (Standard)
+BME280 SDA/SCL: GPIO2 / GPIO3
 
+VEML7700 SDA/SCL: GPIO0 / GPIO1
+
+Status-LED: Onboard oder frei wählbar (z. B. GPIO16)
+
+Troubleshooting
+LED blinkt schnell: Kein WLAN oder MQTT erreichbar.
+
+LED blinkt langsam: Sensorfehler (BME280 oder VEML7700 nicht gefunden).
+
+Keine Werte: Prüfe Verkabelung, I2C-Pins, MQTT-Konfiguration.
+
+Tipp:
+Du kannst via USB-Seriell mit screen/minicom/Thonny debuggen und Logs auslesen.
+
+
+Lizenz
+MIT License – siehe LICENSE
+
+Fragen, Feedback, Bugs?
+Erstelle ein GitHub Issue
+oder schreib an info@reset42.de
