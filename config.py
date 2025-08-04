@@ -3,7 +3,7 @@
 # WLAN-Konfiguration (primär)
 SSID = "Your_Primary_SSID"          # Name des primären WLANs / Primary WiFi SSID
 PASSWORD = "Your_Password"          # Passwort des primären WLANs / Primary WiFi password
-STATIC_IP = "Your_Static_IP"        # Statische IP-Adresse (optional) / Static IP (optional)
+STATIC_IP = "Your_Static_IP"        # Statische IP-Adresse (optional; leer lassen für DHCP) / Static IP (optional; leave empty for DHCP)
 NETMASK = "255.255.255.0"            # Subnetzmaske / Subnet mask
 GATEWAY = "192.168.1.1"              # Gateway-Adresse / Default gateway
 DNS = "8.8.8.8"                      # DNS-Server / DNS server
@@ -11,7 +11,7 @@ DNS = "8.8.8.8"                      # DNS-Server / DNS server
 # WLAN-Konfiguration (Fallback)
 SSID_FB = "Your_Secondary_SSID"      # Zweites WLAN als Fallback / Secondary WiFi SSID (fallback)
 PASSWORD_FB = "your_fallback_pass"   # Passwort für Fallback-WLAN / Password for fallback network
-STATIC_IP_FB = "192.168.1.101"       # Statische IP im Fallback-Netz / Static IP in fallback network
+STATIC_IP_FB = "192.168.1.101"       # Statische IP im Fallback-Netz (leer lassen für DHCP) / Static IP in fallback network (leave empty for DHCP)
 NETMASK_FB = "255.255.255.0"
 GATEWAY_FB = "192.168.1.1"
 DNS_FB = "1.1.1.1"
