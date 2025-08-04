@@ -1,4 +1,5 @@
-# r42_Gardensensor_MicroPython
+# Gardensensor by Reset42 
+for MicropythonMicroPython
 
 **Plug & Play WLAN-Gartensensor für Maker, Bastler & Automatisierer – Raspberry Pi Pico W, BME280, VEML7700 und MQTT.**
 
