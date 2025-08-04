@@ -1,20 +1,61 @@
 # r42_Gardensensor_MicroPython
 
-Ein einfaches MicroPython-Projekt zur Sensordatenerfassung (BME280, VEML7700) und MQTT-Übertragung auf einem Raspberry Pi Pico W.
+**Plug & Play WLAN-Gartensensor für Maker, Bastler & Automatisierer – Raspberry Pi Pico W, BME280, VEML7700 und MQTT.**
 
-## Setup
+---
 
-1. MicroPython Firmware auf den Pico W flashen.
-2. Dateien aus `src/` auf den Pico kopieren.
-3. `config.py` anpassen.
-4. Sensor starten, MQTT-Daten empfangen.
+## Features
 
-## Ordnerstruktur
+- WiFi-fähig (kein Cloudzwang, volle Kontrolle)
+- Echtzeitdaten: Temperatur, Luftfeuchte, Luftdruck, Helligkeit (Lux)
+- Modular, erweiterbar & async-fähig
+- MQTT-Unterstützung für Logging & Automatisierung
+- Status-LED & Fehlercodes
+- Vollständig Open Source (MIT)
 
-- `src/` – Enthält die MicroPython-Dateien für den Sensor.
-- `LICENSE` – MIT-Lizenz
-- `.gitignore` – Ignoriert typische temporäre Dateien
+---
 
-## Lizenz
+## Hardware
 
-MIT License
+- **Raspberry Pi Pico W** (MicroPython-fähig)
+- **BME280** (I2C – Temperatur, Feuchte, Druck)
+- **VEML7700** (I2C – Licht/Lux)
+- **Status-LED** (optional, für Fehleranzeige)
+- **(Optional) Weitere I2C-Sensoren einfach nachrüstbar**
+
+---
+
+## Installation
+
+1. **MicroPython flashen:**  
+   Lade das passende Image von [micropython.org/download/rp2-pico-w/](https://micropython.org/download/rp2-pico-w/), folge der dortigen Anleitung (drag&drop via USB).
+
+2. **Dateien auf den Pico kopieren:**  
+   - Kopiere den gesamten Inhalt aus `src/lib/` **in das Hauptverzeichnis** deines Pico W (z. B. via Thonny oder rshell/ampy).
+   - Lege die `main.py` ins Hauptverzeichnis.
+   - Achte darauf, dass alle benötigten Bibliotheken (s. u.) vorhanden sind.
+
+3. **config.py anpassen:**  
+   Trage deine WLAN-Daten, MQTT-Server, Sensor-Pins usw. in `config.py` ein.
+
+4. **Start:**  
+   - Starte den Pico neu, `main.py` läuft automatisch.
+   - Status-LED zeigt Fehler an (siehe Troubleshooting).
+
+---
+
+## Beispiel: config.py
+
+```python
+# config.py – zentrale Konfiguration für WLAN, MQTT, Sensoren
+SSID = "MeinWLAN"
+PASSWORD = "supergeheim"
+STATIC_IP = ""  # leer für DHCP
+MQTT_BROKER = "192.168.1.50"
+MQTT_PORT = 1883
+MQTT_CLIENT_ID = "sensor_indoor"
+VEML_SDA = 0
+VEML_SCL = 1
+BME_SDA = 2
+BME_SCL = 3
+ONBOARD_LED = "LED"
