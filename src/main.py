@@ -36,7 +36,7 @@ async def main():
         else:
             print("❌ WLAN konnte mit keinem Netzwerk verbunden werden – Neustart.")
             await leds.blink(leds.onboard_led, 10, 100)
-            # machine.reset()
+            machine.reset()
 
     wifi.sync_time()
     mqtt_connected = False
