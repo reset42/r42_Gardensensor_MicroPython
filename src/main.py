@@ -1,3 +1,5 @@
+# main.py – Hauptlogik mit MQTT, WLAN und Sensoren
+
 import uasyncio as asyncio
 import wifi
 import mqtt
@@ -34,7 +36,7 @@ async def main():
         else:
             print("❌ WLAN konnte mit keinem Netzwerk verbunden werden – Neustart.")
             await leds.blink(leds.onboard_led, 10, 100)
-            #machine.reset()
+            # machine.reset()
 
     wifi.sync_time()
     mqtt_connected = False
@@ -86,7 +88,7 @@ async def main():
             fallback_check_timer = time.time()
 
         # MQTT-Verbindung prüfen
-        if mqtt_connected is False:
+        if not mqtt_connected:
             connect_result = mqtt.connect()
             if connect_result == mqtt.SUCCESS:
                 mqtt_connected = True
