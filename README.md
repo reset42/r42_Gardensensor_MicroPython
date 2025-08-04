@@ -64,33 +64,35 @@ ONBOARD_LED = "LED"
 ```
 ---
 
-- **Raspberry Pi Pico W** (MicroPython-fähig)
+- **BME280** SDA/SCL: GPIO2 / GPIO3
 - **BME280** (I2C – Temperatur, Feuchte, Druck)
 - **VEML7700** (I2C – Licht/Lux)
 - **Status-LED** (optional, für Fehleranzeige)
 - **(Optional) Weitere I2C-Sensoren einfach nachrüstbar**
 
-Pinout (Standard)
-BME280 SDA/SCL: GPIO2 / GPIO3
+## Pinout (Standard)
+- **BME280** SDA/SCL: GPIO2 / GPIO3
+- **VEML7700*** SDA/SCL: GPIO0 / GPIO1
 
-VEML7700 SDA/SCL: GPIO0 / GPIO1
+## Status-LED: 
+-**LED**(Onboard) oder frei wählbar (z. B. GPIO16)
 
-Status-LED: Onboard oder frei wählbar (z. B. GPIO16)
+---
 
-Troubleshooting
-LED blinkt schnell: Kein WLAN oder MQTT erreichbar.
+## Troubleshooting
+- **LED blinkt schnell:** Kein WLAN oder MQTT erreichbar.
 
-LED blinkt langsam: Sensorfehler (BME280 oder VEML7700 nicht gefunden).
+- **LED blinkt langsam:** Sensorfehler (BME280 oder VEML7700 nicht gefunden).
 
-Keine Werte: Prüfe Verkabelung, I2C-Pins, MQTT-Konfiguration.
+- **Keine Werte:** Prüfe Verkabelung, I2C-Pins, MQTT-Konfiguration.
 
-Tipp:
-Du kannst via USB-Seriell mit screen/minicom/Thonny debuggen und Logs auslesen.
+## Tipp:
+- Du kannst via USB-Seriell mit screen/minicom/Thonny debuggen und Logs auslesen.
 
 
-Lizenz
-MIT License – siehe LICENSE
+## Lizenz
+**MIT License – siehe LICENSE**
 
-Fragen, Feedback, Bugs?
-Erstelle ein GitHub Issue
-oder schreib an info@reset42.de
+## Fragen, Feedback, Bugs?
+- Erstelle ein [GitHub Issue](https://github.com/reset42/r42_Gardensensor_MicroPython/issues)
+- oder schreib an info@reset42.de 
