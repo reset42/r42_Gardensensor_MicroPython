@@ -63,3 +63,6 @@ ONBOARD_LED = "LED" ```
 
 ---
 
+**Merke:**  
+- **Öffnen:** Drei Backticks + „python“  
+
