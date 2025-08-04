@@ -1,21 +1,13 @@
-# mqtt.py – Minimal MQTT client implementation without external libraries
+# mqtt.py – integrated MQTT client without external dependencies
 
 import socket
 import struct
 import ujson
 import config
-
-# Status codes
-SUCCESS = 1
-RECOVERED = 2
-FATAL_ERROR = 3
+from state import SUCCESS, RECOVERED, FATAL_ERROR
+import leds  # For optional error blink on fatal publish
 
 client = None
-
-try:
-    from main import error_blink  # optional fail indicator
-except:
-    error_blink = lambda reason: None  # fallback if not in main context
 
 class MQTTException(Exception):
     pass
@@ -29,12 +21,10 @@ class MQTTClient:
         self.password = password
         self.sock = None
 
-    # Helper to send strings with MQTT encoding
     def _send_str(self, s):
         self.sock.write(struct.pack("!H", len(s)))
         self.sock.write(s.encode() if isinstance(s, str) else s)
 
-    # Establish socket and send CONNECT packet
     def connect(self):
         self.sock = socket.socket()
         addr = socket.getaddrinfo(self.server, self.port)[0][-1]
@@ -78,14 +68,12 @@ class MQTTClient:
         if resp[0] != 0x20 or resp[1] != 0x02 or resp[3] != 0x00:
             raise MQTTException("MQTT connection failed")
 
-    # Gracefully close connection
     def disconnect(self):
         if self.sock:
             self.sock.write(b"\xe0\0")
             self.sock.close()
             self.sock = None
 
-    # Publish message to given topic
     def publish(self, topic, msg, retain=False, qos=0):
         if self.sock is None:
             raise MQTTException("Not connected")
@@ -115,7 +103,8 @@ class MQTTClient:
 
         self.sock.write(pkt)
 
-# Connect to MQTT broker and handle exceptions
+# Establish MQTT connection with credentials from config
+
 def connect():
     global client
     try:
@@ -127,44 +116,47 @@ def connect():
             password=config.MQTT_PASSWORD,
         )
         client.connect()
-        print("📡 MQTT connected.")
+        print("📡 MQTT verbunden.")
         return SUCCESS
     except Exception as e:
-        print("❌ MQTT connection failed:", e)
+        print("❌ MQTT-Verbindung fehlgeschlagen:", e)
         client = None
         return FATAL_ERROR
 
-# Return True if currently connected
+# Check whether connection is still valid
+
 def is_connected():
     return client is not None
 
-# Publish a payload to the default topic
+# Publish JSON-encoded payload; recover on disconnect, blink LED on failure
+
 def publish(payload: dict):
     global client
 
     if client is None:
-        print("⚠️ MQTT client not connected – trying reconnect...")
+        print("⚠️ MQTT-Client nicht verbunden – versuche Reconnect...")
         if connect() != SUCCESS:
-            error_blink("PUBLISH_FAIL")
             return FATAL_ERROR
         else:
-            print("✅ MQTT reconnect successful")
+            print("✅ MQTT-Reconnect erfolgreich")
 
     try:
         json_data = ujson.dumps(payload)
         client.publish(config.MQTT_TOPIC, json_data)
-        print("📤 MQTT published:", json_data)
+        print("📤 MQTT: Gesendet:", json_data)
         return SUCCESS
 
     except Exception as e:
-        print("❌ Publish error:", e)
+        print("❌ Fehler beim Senden:", e)
         try:
             client.disconnect()
             client.connect()
-            print("🔁 MQTT reconnect via disconnect/connect.")
+            print("🔁 MQTT reconnect durch disconnect/connect.")
             return RECOVERED
         except Exception as e:
-            print("❌ Reconnect failed:", e)
+            print("❌ Reconnect fehlgeschlagen:", e)
             client = None
-            error_blink("PUBLISH_FAIL")
+            # Trigger LED blink for clear field error code
+            import uasyncio as asyncio
+            asyncio.create_task(leds.blink(leds.onboard_led, 3, 400))  # same as "PUBLISH_FAIL"
             return FATAL_ERROR
