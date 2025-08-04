@@ -42,9 +42,10 @@
    - Starte den Pico neu, `main.py` läuft automatisch.
    - Status-LED zeigt Fehler an (siehe Troubleshooting).
 
----
+
 
 ## Beispiel: config.py
+**siehe config.py im repo für weitere Informationen ! **
 
 ```python
 # config.py – zentrale Konfiguration für WLAN, MQTT, Sensoren
