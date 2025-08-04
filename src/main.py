@@ -44,7 +44,7 @@ async def connect_wifi():
         await asyncio.sleep(config.WIFI_RETRY_DELAY)
 
     log("❌ Failed to connect to any network – rebooting.", "FATAL")
-    await leds.blink(leds.onboard_led, 10, 100)
+    await error_blink("WIFI_FAIL")
     machine.reset()
 
 # Monitor and maintain WiFi connection; periodically check for primary recovery
@@ -74,7 +74,7 @@ async def handle_mqtt():
             log("✅ MQTT connection established")
         else:
             log("❌ MQTT unreachable – will retry", "ERROR")
-            await leds.blink(leds.onboard_led, 3, 400)
+            await error_blink("MQTT_FAIL")
             await asyncio.sleep(5)
             return False
     return True
@@ -84,7 +84,7 @@ async def handle_sensors():
     sensor_status, sensor_data = sensors.read_all()
     if sensor_status != state.SUCCESS:
         log("⚠️ Sensor error – attempting VEML7700 reset", "WARN")
-        await leds.blink(leds.onboard_led, 2, 150)
+        await error_blink("SENSOR_FAIL")
         sensors.reset_veml()
         await asyncio.sleep(5)
         return None
@@ -114,7 +114,9 @@ async def handle_publish(data):
 async def main():
     log("🔧 Starting main loop...")
     await connect_wifi()
-    wifi.sync_time()
+    if not wifi.sync_time():
+        log("⚠️ Time sync failed – continuing without NTP.", "WARN")
+        await leds.blink(leds.onboard_led, 4, 100)
 
     while True:
         await handle_wifi()
@@ -132,7 +134,22 @@ async def main():
 
         await asyncio.sleep(config.UPDATE_INTERVAL)
 
-# Run the asyncio event loop
+# Add LED error patterns for field diagnostics
+ERROR_PATTERNS = {
+    "WIFI_FAIL": (10, 100),       # 10 fast blinks
+    "MQTT_FAIL": (3, 400),        # 3 slow blinks
+    "SENSOR_FAIL": (2, 150),      # 2 medium blinks
+    "PUBLISH_FAIL": (3, 400),     # same as MQTT_FAIL
+    "NTP_FAIL": (4, 100),         # unique blink for NTP issue
+}
+
+# Wrapper for blinking based on error name
+def error_blink(reason):
+    pattern = ERROR_PATTERNS.get(reason)
+    if pattern:
+        return leds.blink(leds.onboard_led, *pattern)
+    return None
+
 try:
     asyncio.run(main())
 finally:
