@@ -48,7 +48,7 @@
 
 
 ## Beispiel: config.py
-Siehe config.py im repo für weitere Informationen ! [config.py](src/lib/config.py)**
+Siehe **[config.py](src/lib/config.py)** im repo für weitere Informationen ! 
 
 ```python
 # config.py – zentrale Konfiguration für WLAN, MQTT, Sensoren
