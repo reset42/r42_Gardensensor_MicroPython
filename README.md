@@ -76,7 +76,7 @@ ONBOARD_LED = "LED"
 - **VEML7700** |  SDA/SCL: GPIO0 / GPIO1
 
 ## Status-LED: 
--**LED** (Onboard) oder frei wählbar (z. B. GPIO16)
+- **LED** (Onboard) oder frei wählbar (z. B. GPIO16)
 
 ---
 
