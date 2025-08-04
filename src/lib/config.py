@@ -26,11 +26,13 @@ MAX_WIFI_RETRIES = 10                 # Maximale Versuche für Verbindung / Max 
 WIFI_RETRY_DELAY = 0.5                # Verzögerung zwischen Versuchen (Sekunden) / Delay between retries (s)
 WIFI_PRIMARY_CHECK = 10               # Prüfintervall für Rückkehr ins Primärnetz / Loops before checking primary WiFi
 
-# MQTT-Konfiguration / MQTT configuration
-MQTT_BROKER = "mqtt.example.com"      # IP-Adresse oder Hostname des MQTT-Brokers / MQTT broker IP or hostname
-MQTT_PORT = 1883                      # Standardport für MQTT / MQTT default port
-MQTT_CLIENT_ID = "sensor_indoor"      # Eindeutiger Name des Geräts / Unique client ID
-MQTT_TOPIC = "sensor/gh/sensor_indoor" # Topic für Sensordaten / Topic to publish sensor data
+# --- MQTT Konfiguration ---
+MQTT_BROKER = "192.168.178.10"
+MQTT_PORT = 1883
+MQTT_CLIENT_ID = "sensor_gh_1"
+MQTT_TOPIC = "sensor/gh/sensor_outdoor"
+MQTT_USER = None           # z. B. "sensoruser"
+MQTT_PASSWORD = None       # z. B. "geheim123"
 
 # Sensor-Update-Intervall / Sensor data send interval
 UPDATE_INTERVAL = 10                  # Sekunden / in seconds
