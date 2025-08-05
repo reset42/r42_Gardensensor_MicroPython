@@ -1,51 +1,52 @@
-
 <p align="center">
   <img src="https://reset42.de/reset42.svg" alt="reset42 Logo" width="180"/>
 </p>
 
-# reset42 Gartensensor
+# reset42 Gardensensor
 
-**Plug & Play WLAN-Gartensensor für Maker, Bastler & Automatisierer – mit Raspberry Pi Pico W, BME280, VEML7700 und MQTT.**  
+**Plug & Play WLAN-Gartensensor für Maker, Bastler und Automatisierungs-Fans – basierend auf Raspberry Pi Pico W, BME280, VEML7700 und MQTT.**  
 **Läuft mit MicroPython – lokal, modular, ohne Cloud.**
 
 ---
 
 ## 🌱 Funktionen
 
-- 📶 **WiFi-fähig** – inkl. Fallback-WLAN und statischer IP (optional)
-- 🌡️ Echtzeitdaten: Temperatur, Luftfeuchte, Luftdruck, Helligkeit (Lux)
-- 🔄 **Asynchrone Runtime** via `uasyncio`
-- 📡 **MQTT-Support** für Logging, Smart Home & Automatisierung
-- 💡 **Status-LED** zur Fehleranzeige
-- 🛠️ Vollständig modular, quelloffen & leicht erweiterbar (MIT-Lizenz)
+- 📶 **WLAN-fähig** – inkl. Fallback-Netzwerk und optionaler statischer IP
+- 🌡️ Live-Daten: Temperatur, Luftfeuchtigkeit, Luftdruck, Licht (Lux)
+- 🧪 **Test- & Demo-Modus:** Sensordaten und MQTT-Publishing über `config.py` simulieren (ideal für Entwicklung & Tests)
+- 🧩 **Flexibles MQTT-Format:** Felder & Reihenfolge konfigurierbar
+- 📡 **MQTT-Unterstützung** für Logging, Smart Home & Automatisierung
+- 💡 **Status-LED** für Fehlermeldungen
+- 🛠️ Vollständig modular, quelloffen & einfach erweiterbar (MIT-Lizenz)
 
 ---
 
 ## 🔧 Hardware
 
-- [x] **Raspberry Pi Pico W** (MicroPython-fähig)
-- [x] **BME280** (I2C – Temperatur, Feuchtigkeit, Luftdruck)
-- [x] **VEML7700** (I2C – Lichtstärke in Lux)
-- [ ] **Status-LED** (ansteuerbar, optional)
-- [ ] **weitere I2C-Sensoren optional integrierbar**
+- [x] **Raspberry Pi Pico W** (MicroPython-kompatibel)
+- [x] **BME280** (I2C – Temperatur, Luftfeuchte, Luftdruck)
+- [x] **VEML7700** (I2C – Lichtintensität in Lux)
+- [ ] **Status-LED** (steuerbar, optional)
+- [ ] **Optional** zusätzliche I2C-Sensoren
 
 ---
 
 ## ⚙️ Installation
 
 1. **MicroPython flashen**  
-   Lade das passende `.uf2`-Image für den Pico W von  
+   Passendes `.uf2`-Image für den Pico W herunterladen von:  
    👉 [micropython.org/download/rp2-pico-w](https://micropython.org/download/rp2-pico-w)
 
-2. **Dateien übertragen**  
-   - Kopiere den Inhalt von `src/lib/` in das Hauptverzeichnis des Pico W  
+2. **Dateien hochladen**  
+   - Alles aus `src/lib/` ins Hauptverzeichnis des Pico W kopieren  
      (z. B. mit Thonny, `rshell`, `ampy` oder WebREPL)
-   - Kopiere `main.py` ebenfalls ins Hauptverzeichnis
+   - Zusätzlich `main.py` ins Hauptverzeichnis kopieren
 
 3. **`config.py` anpassen**  
    - WLAN-Daten, MQTT-Broker, Sensor-Pins etc.
+   - Sensor-Modi konfigurieren ("active", "dummy", "inactive") sowie MQTT-Felder
 
-4. **Los geht's!**  
+4. **Los geht’s!**  
    - Reboot → `main.py` startet automatisch  
    - Status-LED blinkt bei Fehlern (siehe Troubleshooting)
 
@@ -53,70 +54,87 @@
 
 ## 🧾 Beispiel `config.py`
 
-Siehe [src/lib/config.py](src/lib/config.py) im Repo für Details:
+Details siehe [src/lib/config.py](src/lib/config.py) im Repository:
 
 ```python
-SSID = "MeinWLAN"
-PASSWORD = "supergeheim"
-STATIC_IP = ""  # leer = DHCP
+SSID = "MyWiFi"
+PASSWORD = "supersecret"
+STATIC_IP = ""  # leer lassen für DHCP
 
 MQTT_BROKER = "192.168.1.50"
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = "sensor_indoor"
 
-VEML_SDA = 0
-VEML_SCL = 1
-BME_SDA = 2
-BME_SCL = 3
-ONBOARD_LED = "LED"
+# Sensor- & MQTT-Modi
+VEML_MODE = "dummy"      # "active", "dummy", "inactive"
+BME_MODE  = "inactive"   # "active", "dummy", "inactive"
+MQTT_MODE = "active"     # "active", "dummy", "inactive"
+
+# MQTT Payload-Felder
+MQTT_PAYLOAD_FIELDS = [
+    "date",
+    "time",
+    "temp",
+    "pressure",
+    "humidity",
+    "lux",
+]
 ```
 
 ---
 
-## 📌 Standard-Pinout
+## 📌 Standard-Pinbelegung
 
-| Komponente   | SDA | SCL |
-|--------------|-----|-----|
-| VEML7700     | GP0 | GP1 |
-| BME280       | GP2 | GP3 |
+| Komponente  | SDA | SCL | VCC (Power) |
+|-------------|-----|-----|-------------|
+| VEML7700    | GP0 | GP1 | GP15        |
+| BME280      | GP2 | GP3 | GP14        |
 
-| Funktion         | Pin        |
-|------------------|------------|
-| Onboard-LED      | "LED"      |
-| VEML Reset GPIO  | GP15       |
+| Funktion          | Pin        |
+|-------------------|------------|
+| Onboard-LED       | "LED"      |
+| VEML Reset GPIO   | GP15       |
 
 ---
 
-## 🧠 Architektur (Kurzfassung)
+## 🧠 Architekturübersicht
 
-- `main.py`: Zentrale Ablaufsteuerung (WLAN, MQTT, Sensoren, LED)
+- `main.py`: Hauptsteuerung (WLAN, MQTT, Sensoren, LED)
 - `lib/`:
-  - `wifi.py`: Verbindet mit primärem oder Fallback-WLAN
-  - `mqtt.py`: Verbindet zum Broker, sendet JSON-Daten
-  - `sensors.py`: Liest BME280 + VEML7700, kann Reset auslösen
-  - `leds.py`: Ansteuerung der Onboard-LED für Statusanzeigen
-  - `config.py`: Konfiguration
-  - `state.py`: Zustandscodes (z. B. `SUCCESS`, `FATAL_ERROR`)
+  - `wifi.py`: Verbindung zu primärem oder Fallback-WLAN
+  - `mqtt.py`: Verbindet mit Broker, sendet JSON, Dummy-Modus
+  - `sensors.py`: Liest BME280 & VEML7700 (real oder simuliert)
+  - `leds.py`: LED-Ansteuerung für Statussignale
+  - `config.py`: Zentrale Konfiguration (WLAN, MQTT, Sensoren, Payload)
+  - `state.py`: Rückgabecodes (SUCCESS, FATAL_ERROR, …)
 
 ---
 
-## 🚨 Fehlersuche
+## 🚨 Fehlersignale (LED)
 
-| Fehler | LED blinkt | Beschreibung |
-|--------|------------|--------------|
-| WiFi-Fehler | 1× langsam | Keine Verbindung zu WLAN |
-| MQTT-Fehler | 2× mittel | Broker nicht erreichbar |
-| Sensorfehler | 3× schnell | Sensorantwort fehlerhaft |
+| Problem         | LED-Blinkmuster     | Bedeutung                  |
+|-----------------|---------------------|----------------------------|
+| WLAN-Fehler     | 1× langsam          | Keine Verbindung möglich   |
+| MQTT-Fehler     | 2× mittel           | Broker nicht erreichbar    |
+| Sensor-Fehler   | 3× schnell          | Sensor antwortet nicht     |
+
+---
+
+## 🖼️ Gehäuse, STL & Zusammenbau
+
+- **STL-Dateien und Anleitung folgen in Kürze!**
+- Das Projekt richtet sich an Maker – gerne Ideen via Issue oder PR beisteuern.
 
 ---
 
 ## 🔒 Lizenz
 
-reset42 Gardensensor ist Open Source und unter der **MIT-Lizenz** veröffentlicht.  
-Nutzung für private & kommerzielle Projekte erlaubt – siehe `LICENSE`.
+reset42 Gardensensor ist Open Source und steht unter der **MIT-Lizenz**.  
+Private & kommerzielle Nutzung erlaubt – siehe `LICENSE`.
 
 ---
 
-**Projektstatus:** aktiv gepflegt – weitere Sensoren, Web-Oberfläche & Sleep-Modus geplant.
+**Projektstatus:** aktiv gepflegt – weitere Sensoren, Webinterface & Sleep-Modus geplant.  
+**STL-Dateien und Montageanleitung folgen bald.**
 
 Fragen, Ideen oder Feedback? → [reset42.de](https://reset42.de)
