@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="https://reset42.de/reset42.svg" alt="reset42 Logo" width="180"/>
 </p>
@@ -15,7 +14,7 @@
 - 📶 **WiFi capable** – including fallback network and optional static IP
 - 🌡️ Real-time data: temperature, humidity, pressure, light (Lux)
 - 🔄 **Test & demo mode:** simulate sensor values and MQTT publishing via `config.py` (ideal for dev & unit tests)
-- 🔄 **Async runtime** with `uasyncio`
+- 🔁 **Synchronous main loop** for maximum stability and easy debugging
 - 🧩 **Flexible MQTT payload format:** fields & order configurable
 - 📡 **MQTT support** for logging, smart home & automation
 - 💡 **Status LED** for error indication
@@ -145,4 +144,4 @@ Private & commercial use allowed – see `LICENSE`.
 **Project status:** actively maintained – more sensors, web interface & sleep mode planned.  
 **STL files and assembly guide will follow soon.**
 
-Questions, ideas or feedback? → [reset42.de](https://reset42.de)
+Questions, ideas or feedback? → [reset42.de](https://reset42.de")
