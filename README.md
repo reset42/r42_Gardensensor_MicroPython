@@ -99,10 +99,10 @@ MQTT_PAYLOAD_FIELDS = [
 
 ## 📌 Standard-Pinout
 
-| Komponente   | SDA | SCL |
-|--------------|-----|-----|
-| VEML7700     | GP0 | GP1 |
-| BME280       | GP2 | GP3 |
+| Komponente   | SDA | SCL | PWR (Power) |
+|--------------|-----|-----|-------------|
+| VEML7700     | GP0 | GP1 | GP15        |
+| BME280       | GP2 | GP3 | GP14        |
 
 | Funktion         | Pin        |
 |------------------|------------|
