@@ -1,85 +1,78 @@
-
 <p align="center">
   <img src="https://reset42.de/reset42.svg" alt="reset42 Logo" width="180"/>
 </p>
 
 # reset42 Gardensensor
 
-**Plug & Play WLAN-Gartensensor für Maker, Bastler & Automatisierer – mit Raspberry Pi Pico W, BME280, VEML7700 und MQTT.**  
-**Läuft mit MicroPython – lokal, modular, ohne Cloud.**
+**Plug & Play Wi-Fi garden sensor for makers, tinkerers & automation fans – powered by Raspberry Pi Pico W, BME280, VEML7700 and MQTT.**  
+**Runs on MicroPython – local, modular, no cloud required.**
 
 ---
 
 ## 🌱 Features
 
-- 📶 **WiFi-fähig** – inkl. Fallback-WLAN und statischer IP (optional)
-- 🌡️ Echtzeitdaten: Temperatur, Luftfeuchte, Luftdruck, Helligkeit (Lux)
-- 🔄 **Test- und Demo-Modus:** Sensorwerte und MQTT-Publishing können in der `config.py` simuliert werden (ideal für Entwicklung & Unit-Tests)
-- 🔄 **Asynchrone Runtime** via `uasyncio`
-- 🧩 **Flexibles MQTT-Payload-Layout:** Felder und Reihenfolge per Konfiguration steuerbar
-- 📡 **MQTT-Support** für Logging, Smart Home & Automatisierung
-- 💡 **Status-LED** zur Fehleranzeige
-- 🛠️ Vollständig modular, quelloffen & leicht erweiterbar (MIT-Lizenz)
+- 📶 **WiFi capable** – including fallback network and optional static IP
+- 🌡️ Real-time data: temperature, humidity, pressure, light (Lux)
+- 🔄 **Test & demo mode:** simulate sensor values and MQTT publishing via `config.py` (ideal for dev & unit tests)
+- 🔄 **Async runtime** with `uasyncio`
+- 🧩 **Flexible MQTT payload format:** fields & order configurable
+- 📡 **MQTT support** for logging, smart home & automation
+- 💡 **Status LED** for error indication
+- 🛠️ Fully modular, open source & easily extendable (MIT license)
 
 ---
 
-## 🌍 Key Features (EN summary)
+## 📘 Deutsche Version
 
-- 📶 **WiFi (w/ fallback), static IP possible**
-- 🌡️ Real-time: temperature, humidity, pressure, light (Lux)
-- 🔄 **Test/Demo mode:** Simulate sensors & MQTT from config for dev/unit tests
-- 📡 **MQTT support** for automation/logging (fully customizable JSON payload)
-- 💡 **Status LED** error indication
-- 🧩 **Modular, open source, easily extendable**
-- **No cloud required** – runs 100% local, fully offline capable
+👉 For the German version, see: [README_DE.md](README_DE.md)
 
 ---
 
 ## 🔧 Hardware
 
-- [x] **Raspberry Pi Pico W** (MicroPython-fähig)
-- [x] **BME280** (I2C – Temperatur, Feuchtigkeit, Luftdruck)
-- [x] **VEML7700** (I2C – Lichtstärke in Lux)
-- [ ] **Status-LED** (ansteuerbar, optional)
-- [ ] **weitere I2C-Sensoren optional integrierbar**
+- [x] **Raspberry Pi Pico W** (MicroPython compatible)
+- [x] **BME280** (I2C – temperature, humidity, pressure)
+- [x] **VEML7700** (I2C – light intensity in Lux)
+- [ ] **Status LED** (controllable, optional)
+- [ ] **Optional** additional I2C sensors
 
 ---
 
 ## ⚙️ Installation
 
-1. **MicroPython flashen**  
-   Lade das passende `.uf2`-Image für den Pico W von  
+1. **Flash MicroPython**  
+   Download the matching `.uf2` image for Pico W from  
    👉 [micropython.org/download/rp2-pico-w](https://micropython.org/download/rp2-pico-w)
 
-2. **Dateien übertragen**  
-   - Kopiere den Inhalt von `src/lib/` in das Hauptverzeichnis des Pico W  
-     (z. B. mit Thonny, `rshell`, `ampy` oder WebREPL)
-   - Kopiere `main.py` ebenfalls ins Hauptverzeichnis
+2. **Upload files**  
+   - Copy everything from `src/lib/` to the root directory of the Pico W  
+     (e.g., via Thonny, `rshell`, `ampy`, or WebREPL)
+   - Also copy `main.py` to the root directory
 
-3. **`config.py` anpassen**  
-   - WLAN-Daten, MQTT-Broker, Sensor-Pins etc.
-   - Sensor-Modi ("active", "dummy", "inactive") und MQTT-Felder einstellen
+3. **Edit `config.py`**  
+   - Wi-Fi credentials, MQTT broker settings, sensor GPIOs etc.
+   - Configure sensor modes ("active", "dummy", "inactive") and MQTT fields
 
-4. **Los geht's!**  
-   - Reboot → `main.py` startet automatisch  
-   - Status-LED blinkt bei Fehlern (siehe Troubleshooting)
+4. **Go!**  
+   - Reboot → `main.py` starts automatically  
+   - Status LED blinks on error (see Troubleshooting)
 
 ---
 
-## 🧾 Beispiel `config.py`
+## 🧾 Sample `config.py`
 
-Siehe [src/lib/config.py](src/lib/config.py) im Repo für Details:
+See [src/lib/config.py](src/lib/config.py) in the repo for details:
 
 ```python
-SSID = "MeinWLAN"
-PASSWORD = "supergeheim"
-STATIC_IP = ""  # leer = DHCP
+SSID = "MyWiFi"
+PASSWORD = "supersecret"
+STATIC_IP = ""  # leave empty for DHCP
 
 MQTT_BROKER = "192.168.1.50"
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = "sensor_indoor"
 
-# Sensor- und MQTT-Testmodi
+# Sensor & MQTT test modes
 VEML_MODE = "dummy"      # "active", "dummy", "inactive"
 BME_MODE  = "inactive"   # "active", "dummy", "inactive"
 MQTT_MODE = "active"     # "active", "dummy", "inactive"
@@ -97,58 +90,58 @@ MQTT_PAYLOAD_FIELDS = [
 
 ---
 
-## 📌 Standard-Pinout
+## 📌 Default Pinout
 
-| Komponente   | SDA | SCL | PWR (Power) |
-|--------------|-----|-----|-------------|
-| VEML7700     | GP0 | GP1 | GP15        |
-| BME280       | GP2 | GP3 | GP14        |
+| Component   | SDA | SCL | PWR (Power) |
+|-------------|-----|-----|-------------|
+| VEML7700    | GP0 | GP1 | GP15        |
+| BME280      | GP2 | GP3 | GP14        |
 
-| Funktion         | Pin        |
+| Function         | Pin        |
 |------------------|------------|
-| Onboard-LED      | "LED"      |
+| Onboard LED      | "LED"      |
 | VEML Reset GPIO  | GP15       |
 
 ---
 
-## 🧠 Architektur (Kurzfassung / Architecture overview)
+## 🧠 Architecture Overview
 
-- `main.py`: Zentrale Ablaufsteuerung (WLAN, MQTT, Sensoren, LED)
+- `main.py`: Main loop control (WiFi, MQTT, sensors, LED)
 - `lib/`:
-  - `wifi.py`: Verbindet mit primärem oder Fallback-WLAN / WiFi with fallback logic
-  - `mqtt.py`: Brokerverbindung, JSON-Publishing, Dummy-Modus möglich
-  - `sensors.py`: Liest BME280 & VEML7700, kann Dummy/Inaktiv-Modus
-  - `leds.py`: Status-LED für Fehler (verschiedene Blinkmuster)
-  - `config.py`: Vollständige Konfiguration (WLAN, MQTT, Sensoren, Payload-Felder)
-  - `state.py`: Zustandscodes (SUCCESS, FATAL_ERROR, ...)
+  - `wifi.py`: Connects to primary or fallback WiFi
+  - `mqtt.py`: Handles broker connection, JSON publishing, dummy mode
+  - `sensors.py`: Reads BME280 & VEML7700 (real or dummy mode)
+  - `leds.py`: Status LED control (blinking patterns)
+  - `config.py`: Full configuration (WiFi, MQTT, sensors, payload fields)
+  - `state.py`: Return codes (SUCCESS, FATAL_ERROR, ...)
 
 ---
 
 ## 🚨 Troubleshooting
 
-| Fehler | LED blinkt | Beschreibung |
-|--------|------------|--------------|
-| WiFi-Fehler | 1× langsam | Keine Verbindung zu WLAN |
-| MQTT-Fehler | 2× mittel | Broker nicht erreichbar |
-| Sensorfehler | 3× schnell | Sensorantwort fehlerhaft |
+| Problem        | LED Blinks       | Description               |
+|----------------|------------------|---------------------------|
+| WiFi Error     | 1× slow          | No connection to WiFi     |
+| MQTT Error     | 2× medium        | Broker not reachable      |
+| Sensor Error   | 3× fast          | Sensor not responding     |
 
 ---
 
-## 🖼️ Gehäuse, STL & Montage
+## 🖼️ Case, STL & Assembly
 
-- **Gehäusedateien (STL) und eine ausführliche Montageanleitung folgen in Kürze!**
-- Das Projekt ist für "Maker" gedacht – Feedback zu mechanischer Integration gern als Issue/PR.
-
----
-
-## 🔒 Lizenz
-
-reset42 Gardensensor ist Open Source und unter der **MIT-Lizenz** veröffentlicht.  
-Nutzung für private & kommerzielle Projekte erlaubt – siehe `LICENSE`.
+- **Case files (STL) and full assembly instructions coming soon!**
+- This is a "maker" project – feel free to contribute mechanical ideas via issue or PR.
 
 ---
 
-**Projektstatus:** aktiv gepflegt – weitere Sensoren, Web-Oberfläche & Sleep-Modus geplant.  
-**STL-Dateien und Aufbauanleitung folgen in Kürze!**
+## 🔒 License
 
-Fragen, Ideen oder Feedback? → [reset42.de](https://reset42.de)
+reset42 Gardensensor is open source and licensed under the **MIT license**.  
+Private & commercial use allowed – see `LICENSE`.
+
+---
+
+**Project status:** actively maintained – more sensors, web interface & sleep mode planned.  
+**STL files and assembly guide will follow soon.**
+
+Questions, ideas or feedback? → [reset42.de](https://reset42.de)
