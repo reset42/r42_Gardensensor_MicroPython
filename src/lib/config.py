@@ -1,11 +1,11 @@
 # config.py – zentrale Konfiguration / central configuration
 
 # ========== WLAN-Konfiguration (primär) / WiFi configuration (primary) ==========
-SSID            = "PN"           		 # Name des primären WLANs / Primary WiFi SSID
-PASSWORD        = "5667361407102283a!"   # Passwort / Primary WiFi password
+SSID            = "Your_Primary_SSID"           		 # Name des primären WLANs / Primary WiFi SSID
+PASSWORD        = "your_fallback_pass"   # Passwort / Primary WiFi password
 STATIC_IP       = ""               		 # Statische IP-Adresse (optional) / Static IP (optional)
 NETMASK         = "255.255.255.0"        # Subnetzmaske / Subnet mask
-GATEWAY         = "192.168.178.1"        # Gateway-Adresse / Default gateway
+GATEWAY         = "192.168.1.1"        # Gateway-Adresse / Default gateway
 DNS             = "8.8.8.8"              # DNS-Server / DNS server
 
 # ========== WLAN-Konfiguration (Fallback) / WiFi configuration (fallback) ==========
@@ -17,7 +17,7 @@ GATEWAY_FB      = "192.168.1.1"
 DNS_FB          = "1.1.1.1"
 
 # ========== Zeitsynchronisation / Time sync settings ==========
-NTP_SERVER      = "192.168.178.1"         # NTP-Server / NTP server
+NTP_SERVER      = "192.168.1.1"         # NTP-Server / NTP server
 UTC_OFFSET      = "3600"                  # Zeitzonenoffset in Sekunden / Timezone offset (seconds, e.g. UTC+1)
 SUMMER_OFFSET   = "3600"                  # Sommerzeit-Offset (Sekunden) / DST offset (seconds)
 
@@ -29,7 +29,7 @@ WIFI_CONNECT_TIMEOUT = 3                  # Sekunden für WLAN-Timeout / Timeout
 
 # ========== MQTT-Konfiguration / MQTT configuration ==========
 MQTT_MODE       = "active"                 # "active", "dummy", "inactive"
-MQTT_BROKER     = "192.168.178.100"       # MQTT-Broker IP / MQTT broker IP
+MQTT_BROKER     = "192.168.1.1"       # MQTT-Broker IP / MQTT broker IP
 MQTT_PORT       = 1883                    # Port
 MQTT_CLIENT_ID  = "sensor_gh_1"           # Client-ID / Client ID
 MQTT_TOPIC      = "sensor/gh/sensor_outdoor" # Topic
