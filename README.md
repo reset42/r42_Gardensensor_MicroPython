@@ -14,10 +14,24 @@
 
 - 📶 **WiFi-fähig** – inkl. Fallback-WLAN und statischer IP (optional)
 - 🌡️ Echtzeitdaten: Temperatur, Luftfeuchte, Luftdruck, Helligkeit (Lux)
+- 🔄 **Test- und Demo-Modus:** Sensorwerte und MQTT-Publishing können in der `config.py` simuliert werden (ideal für Entwicklung & Unit-Tests)
 - 🔄 **Asynchrone Runtime** via `uasyncio`
+- 🧩 **Flexibles MQTT-Payload-Layout:** Felder und Reihenfolge per Konfiguration steuerbar
 - 📡 **MQTT-Support** für Logging, Smart Home & Automatisierung
 - 💡 **Status-LED** zur Fehleranzeige
 - 🛠️ Vollständig modular, quelloffen & leicht erweiterbar (MIT-Lizenz)
+
+---
+
+## 🌍 Key Features (EN summary)
+
+- 📶 **WiFi (w/ fallback), static IP possible**
+- 🌡️ Real-time: temperature, humidity, pressure, light (Lux)
+- 🔄 **Test/Demo mode:** Simulate sensors & MQTT from config for dev/unit tests
+- 📡 **MQTT support** for automation/logging (fully customizable JSON payload)
+- 💡 **Status LED** error indication
+- 🧩 **Modular, open source, easily extendable**
+- **No cloud required** – runs 100% local, fully offline capable
 
 ---
 
@@ -44,6 +58,7 @@
 
 3. **`config.py` anpassen**  
    - WLAN-Daten, MQTT-Broker, Sensor-Pins etc.
+   - Sensor-Modi ("active", "dummy", "inactive") und MQTT-Felder einstellen
 
 4. **Los geht's!**  
    - Reboot → `main.py` startet automatisch  
@@ -64,11 +79,20 @@ MQTT_BROKER = "192.168.1.50"
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = "sensor_indoor"
 
-VEML_SDA = 0
-VEML_SCL = 1
-BME_SDA = 2
-BME_SCL = 3
-ONBOARD_LED = "LED"
+# Sensor- und MQTT-Testmodi
+VEML_MODE = "dummy"      # "active", "dummy", "inactive"
+BME_MODE  = "inactive"   # "active", "dummy", "inactive"
+MQTT_MODE = "active"     # "active", "dummy", "inactive"
+
+# MQTT Payload Fields
+MQTT_PAYLOAD_FIELDS = [
+    "date",
+    "time",
+    "temp",
+    "pressure",
+    "humidity",
+    "lux",
+]
 ```
 
 ---
@@ -87,16 +111,16 @@ ONBOARD_LED = "LED"
 
 ---
 
-## 🧠 Architektur (Kurzfassung)
+## 🧠 Architektur (Kurzfassung / Architecture overview)
 
 - `main.py`: Zentrale Ablaufsteuerung (WLAN, MQTT, Sensoren, LED)
 - `lib/`:
-  - `wifi.py`: Verbindet mit primärem oder Fallback-WLAN
-  - `mqtt.py`: Verbindet zum Broker, sendet JSON-Daten
-  - `sensors.py`: Liest BME280 + VEML7700, kann Reset auslösen
-  - `leds.py`: Ansteuerung der Onboard-LED für Statusanzeigen
-  - `config.py`: Konfiguration
-  - `state.py`: Zustandscodes (z. B. `SUCCESS`, `FATAL_ERROR`)
+  - `wifi.py`: Verbindet mit primärem oder Fallback-WLAN / WiFi with fallback logic
+  - `mqtt.py`: Brokerverbindung, JSON-Publishing, Dummy-Modus möglich
+  - `sensors.py`: Liest BME280 & VEML7700, kann Dummy/Inaktiv-Modus
+  - `leds.py`: Status-LED für Fehler (verschiedene Blinkmuster)
+  - `config.py`: Vollständige Konfiguration (WLAN, MQTT, Sensoren, Payload-Felder)
+  - `state.py`: Zustandscodes (SUCCESS, FATAL_ERROR, ...)
 
 ---
 
@@ -110,6 +134,13 @@ ONBOARD_LED = "LED"
 
 ---
 
+## 🖼️ Gehäuse, STL & Montage
+
+- **Gehäusedateien (STL) und eine ausführliche Montageanleitung folgen in Kürze!**
+- Das Projekt ist für "Maker" gedacht – Feedback zu mechanischer Integration gern als Issue/PR.
+
+---
+
 ## 🔒 Lizenz
 
 reset42 Gardensensor ist Open Source und unter der **MIT-Lizenz** veröffentlicht.  
@@ -117,6 +148,7 @@ Nutzung für private & kommerzielle Projekte erlaubt – siehe `LICENSE`.
 
 ---
 
-**Projektstatus:** aktiv gepflegt – weitere Sensoren, Web-Oberfläche & Sleep-Modus geplant.
+**Projektstatus:** aktiv gepflegt – weitere Sensoren, Web-Oberfläche & Sleep-Modus geplant.  
+**STL-Dateien und Aufbauanleitung folgen in Kürze!**
 
 Fragen, Ideen oder Feedback? → [reset42.de](https://reset42.de)
