@@ -1,6 +1,5 @@
-# main.py – Main control logic for MQTT, WiFi and sensor handling (modular, WiFi/MQTT-first policy)
+# main.py – Main control logic for MQTT, WiFi and sensor handling (synchrones robustes WLAN-Setup)
 
-import uasyncio as asyncio
 import wifi
 import mqtt
 import sensors
@@ -10,54 +9,46 @@ import time
 import config
 import machine
 
-# Error tracking for MQTT failures
 soft_error_count = 0
 MAX_SOFT_ERRORS = 5
 
-# State tracking
 fallback_mode = False
 fallback_check_timer = time.time()
 mqtt_connected = False
 
-# Unified logger with timestamp and level indicator
 def log(msg, level="INFO"):
     t = time.localtime()
     ts = f"{t[3]:02}:{t[4]:02}:{t[5]:02}"
     print(f"[{level}] {ts} – {msg}")
 
-# Establish WiFi connection with fallback logic
-async def connect_wifi():
-    global fallback_mode
-    for attempt in range(config.MAX_WIFI_RETRIES):
-        log(f"🔌 Connecting to primary SSID: {config.SSID} – attempt {attempt + 1}")
-        wifi.use_fallback = False
-        if await wifi.connect() == state.SUCCESS:
-            return True
-        await asyncio.sleep(config.WIFI_RETRY_DELAY)
-
+def connect_wifi_blocking():
+    wifi.use_fallback = False
+    log("🔌 Verbinde mit primärem WLAN...")
+    if wifi.connect_wifi():
+        return state.SUCCESS
+    # Falls Primär fehlschlägt → Fallback versuchen
     for attempt in range(config.MAX_WIFI_RETRIES):
         log(f"🔌 Connecting to fallback SSID: {config.SSID_FB} – attempt {attempt + 1}")
         wifi.use_fallback = True
-        if await wifi.connect() == state.SUCCESS:
+        if wifi.connect_wifi():
+            global fallback_mode
             fallback_mode = True
-            return True
-        await asyncio.sleep(config.WIFI_RETRY_DELAY)
-
+            return state.SUCCESS
+        time.sleep(config.WIFI_RETRY_DELAY)
     log("❌ Failed to connect to any network – rebooting.", "FATAL")
-    await error_blink("WIFI_FAIL")
+    error_blink("WIFI_FAIL")
     machine.reset()
+    return state.FATAL_ERROR
 
-# Monitor and maintain WiFi connection; periodically check for primary recovery
-async def handle_wifi():
+def handle_wifi():
     global fallback_mode, fallback_check_timer
     if not wifi.is_connected():
         log("🚫 WiFi disconnected – trying to reconnect...", "WARN")
-        await connect_wifi()
-
+        connect_wifi_blocking()
     if fallback_mode and time.time() - fallback_check_timer >= config.WIFI_PRIMARY_CHECK:
         log("🔁 Checking for primary WiFi availability...")
         wifi.use_fallback = False
-        if await wifi.connect() == state.SUCCESS:
+        if wifi.connect_wifi():
             log("✅ Switched back to primary WiFi")
             fallback_mode = False
         else:
@@ -65,8 +56,7 @@ async def handle_wifi():
             wifi.use_fallback = True
         fallback_check_timer = time.time()
 
-# Ensure MQTT connection; retry if disconnected
-async def handle_mqtt():
+def handle_mqtt():
     global mqtt_connected
     if not mqtt_connected:
         if mqtt.connect() == mqtt.SUCCESS:
@@ -74,24 +64,22 @@ async def handle_mqtt():
             log("✅ MQTT connection established")
         else:
             log("❌ MQTT unreachable – will retry", "ERROR")
-            await error_blink("MQTT_FAIL")
-            await asyncio.sleep(5)
+            error_blink("MQTT_FAIL")
+            time.sleep(5)
             return False
     return True
 
-# Read sensor values; attempt VEML7700 reset if needed
-async def handle_sensors():
+def handle_sensors():
     sensor_status, sensor_data = sensors.read_all()
     if sensor_status != state.SUCCESS:
         log("⚠️ Sensor error – attempting VEML7700 reset", "WARN")
-        await error_blink("SENSOR_FAIL")
+        error_blink("SENSOR_FAIL")
         sensors.reset_veml()
-        await asyncio.sleep(5)
+        time.sleep(5)
         return None
     return sensor_data
 
-# Send sensor data via MQTT, handle failures and automatic recovery
-async def handle_publish(data):
+def handle_publish(data):
     global soft_error_count, mqtt_connected
     result = mqtt.publish(data)
     if result == mqtt.SUCCESS:
@@ -107,50 +95,47 @@ async def handle_publish(data):
         if soft_error_count >= MAX_SOFT_ERRORS:
             log("🚨 Too many publish errors – rebooting.", "FATAL")
             machine.reset()
-        await leds.blink(leds.onboard_led, 3, 400)
-        await asyncio.sleep(5)
+        leds.blink(leds.onboard_led, 3, 400)
+        time.sleep(5)
 
-# Main event loop
-async def main():
+def main():
     log("🔧 Starting main loop...")
-    await connect_wifi()
+    wifi_result = connect_wifi_blocking()
+    if wifi_result != state.SUCCESS:
+        return
+
     if not wifi.sync_time():
         log("⚠️ Time sync failed – continuing without NTP.", "WARN")
-        await leds.blink(leds.onboard_led, 4, 100)
+        leds.blink(leds.onboard_led, 4, 100)
 
     while True:
-        await handle_wifi()
-        mqtt_ok = await handle_mqtt()
+        handle_wifi()
+        mqtt_ok = handle_mqtt()
 
-        # Skip sensor operations if no connectivity
         if not wifi.is_connected() or not mqtt_ok:
             log("📡 Network or broker unavailable – reconnect only.", "WARN")
-            await asyncio.sleep(5)
+            time.sleep(5)
             continue
 
-        sensor_data = await handle_sensors()
+        sensor_data = handle_sensors()
         if sensor_data:
-            await handle_publish(sensor_data)
+            handle_publish(sensor_data)
 
-        await asyncio.sleep(config.UPDATE_INTERVAL)
+        time.sleep(config.UPDATE_INTERVAL)
 
-# Add LED error patterns for field diagnostics
 ERROR_PATTERNS = {
-    "WIFI_FAIL": (10, 100),       # 10 fast blinks
-    "MQTT_FAIL": (3, 400),        # 3 slow blinks
-    "SENSOR_FAIL": (2, 150),      # 2 medium blinks
-    "PUBLISH_FAIL": (3, 400),     # same as MQTT_FAIL
-    "NTP_FAIL": (4, 100),         # unique blink for NTP issue
+    "WIFI_FAIL": (10, 100),
+    "MQTT_FAIL": (3, 400),
+    "SENSOR_FAIL": (2, 150),
+    "PUBLISH_FAIL": (3, 400),
+    "NTP_FAIL": (4, 100),
 }
 
-# Wrapper for blinking based on error name
 def error_blink(reason):
     pattern = ERROR_PATTERNS.get(reason)
     if pattern:
         return leds.blink(leds.onboard_led, *pattern)
     return None
 
-try:
-    asyncio.run(main())
-finally:
-    asyncio.new_event_loop()
+if __name__ == "__main__":
+    main()
