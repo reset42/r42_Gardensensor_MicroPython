@@ -1,103 +1,66 @@
-# sensors.py – Sensorinitialisierung und Auslesung / Sensor initialization and data reading
+# sensors.py – Sensorlogik für BME280 und VEML7700 / Sensor logic for BME280 and VEML7700
 
-from machine import Pin, I2C
 from veml7700_driver import VEML7700
 from bme280_driver import BME280
+from machine import Pin, I2C
 import time
-from collections import OrderedDict
-import state
 import config
+import state
+import random
+from collections import OrderedDict
 
 veml = None
 bme = None
+veml_initialized = False
+bme_initialized = False
 
-# --- Sensor-Versorgung aktivieren / Activate sensor power ---
-veml_power = Pin(config.VEML_PWR, Pin.OUT)
-veml_power.value(1)
-
-bme_power = Pin(config.BME_PWR, Pin.OUT)
-bme_power.value(1)
-
-# --- I2C-Initialisierung / I2C initialization ---
-i2c_veml = I2C(0, scl=Pin(config.VEML_SCL), sda=Pin(config.VEML_SDA))
-i2c_bme = I2C(1, scl=Pin(config.BME_SCL), sda=Pin(config.BME_SDA))
-
-# --- Initialisierung VEML7700 / VEML7700 initialization ---
-def init_veml():
-    global veml
-    try:
-        veml = VEML7700(i2c=i2c_veml)
-        print("📷 VEML7700 initialisiert / VEML7700 initialized.")
-        return state.SUCCESS
-    except Exception as e:
-        print("❌ VEML7700 Fehler bei Init / Init error:", e)
-        return state.FATAL_ERROR
-
-def reset_veml():
-    print("🔄 VEML7700 wird neu gestartet / VEML7700 reset...")
-    veml_power.value(0)
+# --- Sensorstrom aktivieren / Activate sensor power ---
+def power_on():
+    if hasattr(config, "VEML_PWR"):
+        Pin(config.VEML_PWR, Pin.OUT).on()
+    if hasattr(config, "BME_PWR"):
+        Pin(config.BME_PWR, Pin.OUT).on()
     time.sleep(0.2)
-    veml_power.value(1)
-    time.sleep(0.2)
-    return init_veml()
 
-def read_veml():
-    # Unterstützt active, dummy und inactive / Supports active, dummy, inactive
-    mode = getattr(config, "VEML_MODE", "active")
-    if mode == "inactive":
-        return state.SUCCESS, None
-    if mode == "dummy":
-        import random
-        return state.SUCCESS, random.randint(0, 2000)
-    global veml
-    try:
-        if veml is None:
-            if init_veml() != state.SUCCESS:
-                return state.FATAL_ERROR, {}
-        lux = veml.read_lux()
-        if not isinstance(lux, (int, float)) or lux < 0:
-            return state.FATAL_ERROR, {}
-        return state.SUCCESS, lux
-    except Exception as e:
-        print("❌ VEML7700 Fehler beim Lesen / Read error:", e)
-        return state.FATAL_ERROR, {}
+# --- Sensorstrom deaktivieren / Deactivate sensor power ---
+def power_off():
+    if hasattr(config, "VEML_PWR"):
+        Pin(config.VEML_PWR, Pin.OUT).off()
+    if hasattr(config, "BME_PWR"):
+        Pin(config.BME_PWR, Pin.OUT).off()
 
-# --- Initialisierung BME280 / BME280 initialization ---
-def init_bme():
-    global bme
-    try:
-        bme = BME280(i2c=i2c_bme, address=config.BME280_ADDRESS)
-        print("🌡️ BME280 initialisiert / BME280 initialized.")
-        return state.SUCCESS
-    except Exception as e:
-        print("❌ BME280 Fehler bei Init / Init error:", e)
-        return state.FATAL_ERROR
+# --- Sensorinitialisierung / Sensor initialization ---
+def init_sensors():
+    global veml, bme, veml_initialized, bme_initialized
 
-def read_bme():
-    mode = getattr(config, "BME_MODE", "active")
-    if mode == "inactive":
-        return state.SUCCESS, {"temp": None, "pressure": None, "humidity": None}
-    if mode == "dummy":
-        import random
-        return state.SUCCESS, {
-            "temp": round(random.uniform(20.0, 35.0), 1),
-            "pressure": round(random.uniform(980.0, 1050.0), 1),
-            "humidity": round(random.uniform(20.0, 80.0), 1)
-        }
-    global bme
-    try:
-        if bme is None:
-            if init_bme() != state.SUCCESS:
-                return state.FATAL_ERROR, {}
-        temp, pressure, humidity = bme.read_compensated_data()
-        return state.SUCCESS, {
-            "temp": round(temp, 1),
-            "pressure": round(pressure, 1),
-            "humidity": round(humidity, 1)
-        }
-    except Exception as e:
-        print("❌ BME280 Fehler beim Lesen / Read error:", e)
-        return state.FATAL_ERROR, {}
+    if config.VEML_MODE == "off" and config.BME_MODE == "off":
+        return state.SUCCESS  # nichts zu tun / nothing to do
+
+    power_on()
+
+    if config.VEML_MODE == "active":
+        try:
+            veml_i2c = I2C(0, sda=Pin(config.VEML_SDA), scl=Pin(config.VEML_SCL))
+            veml = VEML7700(veml_i2c)
+            veml_initialized = True
+            print("📷 VEML7700 initialisiert / VEML7700 initialized.")
+        except Exception as e:
+            print("❌ VEML7700 Fehler / Error:", e)
+            veml = None
+            veml_initialized = False
+
+    if config.BME_MODE == "active":
+        try:
+            bme_i2c = I2C(1, sda=Pin(config.BME_SDA), scl=Pin(config.BME_SCL))
+            bme = BME280(i2c=bme_i2c)
+            bme_initialized = True
+            print("🌡️ BME280 initialisiert / BME280 initialized.")
+        except Exception as e:
+            print("❌ BME280 Fehler / Error:", e)
+            bme = None
+            bme_initialized = False
+
+    return state.SUCCESS
 
 # --- RTC-Zeit holen / Get RTC time ---
 def get_formatted_rtc():
@@ -106,46 +69,73 @@ def get_formatted_rtc():
     uhrzeit = "{:02d}:{:02d}:{:02d}".format(now[3], now[4], now[5])
     return datum, uhrzeit
 
-# --- Hilfsfunktion: Payload bauen nach config / Build payload by config fields ---
+# --- Hilfsfunktion: Payload bauen nach config / Helper: Build payload from config ---
 def build_payload(data):
     fields = getattr(config, "MQTT_PAYLOAD_FIELDS", None)
     if fields:
         payload = OrderedDict()
         for field in fields:
             payload[field] = data.get(field, None)
-        # Warnung, falls Felder fehlen
         missing = [f for f in fields if f not in data]
         if missing:
-            print("⚠️ Warnung: Feld(er) in MQTT_PAYLOAD_FIELDS nicht im sensors.py erzeugt: / Warning: Field(s) in MQTT_PAYLOAD_FIELDS not produced in sensors.py:", missing)
+            print("⚠️ MQTT_PAYLOAD_FIELDS enthält unbekannte Felder / contains unknown fields:", missing)
         return payload
-    # Fallback: alle Felder übernehmen / fallback: all fields
-    return OrderedDict(data)
+    return OrderedDict(data)  # fallback
 
-# --- Gesamtsensor-Auslesung / Read all sensors ---
+# --- Gesamtsensor-Auslesung / Full sensor reading ---
 def read_all():
     datum, uhrzeit = get_formatted_rtc()
+    data = {"date": datum, "time": uhrzeit}
 
-    # VEML
-    status_lux, lux = read_veml()
-    if status_lux != state.SUCCESS:
-        lux = None
+    # Lux-Wert lesen / Read lux
+    if config.VEML_MODE == "active" and veml_initialized:
+        try:
+            data["lux"] = veml.read_lux()
+        except:
+            data["lux"] = None
+    elif config.VEML_MODE == "dummy":
+        data["lux"] = random.randint(100, 2000)
+    else:
+        data["lux"] = None
 
-    # BME280
-    status_bme, bme_data = read_bme()
-    if status_bme != state.SUCCESS or bme_data is None:
-        bme_data = {"temp": None, "pressure": None, "humidity": None}
+    # BME-Werte lesen / Read BME values
+    if config.BME_MODE == "active" and bme_initialized:
+        try:
+            temp, pressure, humidity = bme.read_compensated_data()
+            data["temp"] = round(temp, 1)
+            data["pressure"] = round(pressure / 100, 1)
+            data["humidity"] = round(humidity, 1)
+        except:
+            data["temp"] = None
+            data["pressure"] = None
+            data["humidity"] = None
+    elif config.BME_MODE == "dummy":
+        data["temp"] = round(random.uniform(18.0, 32.0), 1)
+        data["pressure"] = round(random.uniform(980.0, 1020.0), 1)
+        data["humidity"] = round(random.uniform(30.0, 60.0), 1)
+    else:
+        data["temp"] = None
+        data["pressure"] = None
+        data["humidity"] = None
 
-    # Alle Sensorwerte als Dict sammeln / Collect all sensor values as dict
-    data = {
-        "date": datum,
-        "time": uhrzeit,
-        "temp": bme_data["temp"],
-        "pressure": bme_data["pressure"],
-        "humidity": bme_data["humidity"],
-        "lux": lux
-        # → Hier beliebig um neue Felder erweitern! / Add more fields here as needed!
-    }
+    return state.SUCCESS, build_payload(data)
 
-    # Flexibler Payload je nach Config-Feldliste / Flexible payload according to config field list
-    payload = build_payload(data)
-    return state.SUCCESS, payload
+# --- VEML Reset über GPIO / VEML reset via GPIO ---
+def veml_reset():
+    if hasattr(config, "VEML_PWR"):
+        Pin(config.VEML_PWR, Pin.OUT).off()
+        time.sleep(0.2)
+        Pin(config.VEML_PWR, Pin.OUT).on()
+        time.sleep(0.5)
+        return True
+    return False
+
+# --- BME Reset über GPIO / BME reset via GPIO ---
+def bme_reset():
+    if hasattr(config, "BME_PWR"):
+        Pin(config.BME_PWR, Pin.OUT).off()
+        time.sleep(0.2)
+        Pin(config.BME_PWR, Pin.OUT).on()
+        time.sleep(0.5)
+        return True
+    return False
