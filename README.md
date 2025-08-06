@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://reset42.de/reset42.svg" alt="reset42 Logo" width="180"/>
+  <img src="https://reset42.de/img/reset42.svg" alt="reset42 Logo" width="180"/>
 </p>
 
 # reset42 Gardensensor
